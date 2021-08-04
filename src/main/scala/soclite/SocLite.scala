@@ -16,10 +16,18 @@ class SocLite(implicit p: Parameters) extends LazyModule {
   // slave devices
   val axi_ram = LazyModule(new SimSRAM(262144 * 4))
   val confreg_wrapper = LazyModule(new ConfregWrapper())
+  val dummy_slave = LazyModule(new DummySlaveWrapper())
 
+
+  /*
+        ram          -
+        confreg      -  xbar  - cpu
+        dummy_slave  -
+   */
   axi_xbar := AXI4Buffer() := axi_cpu.node
   axi_ram.node := AXI4Buffer() := axi_xbar
   confreg_wrapper.node := AXI4Buffer() := axi_xbar
+  dummy_slave.node := AXI4Buffer() := axi_xbar
 
   lazy val module = new LazyModuleImp(this){
     val debug = IO(Output(new Debug))
